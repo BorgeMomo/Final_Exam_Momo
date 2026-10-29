@@ -1,0 +1,42 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+    - name: Custom MOTD
+      copy:
+        content:  "Ansible managed by Momo \n"
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Update Repository Index (UBUNTU)
+      apt:
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Update Repository Index (CENTOS)
+      dnf:
+        update_cache: yes
+      when: ansible_distribution == "CentOS"
+
+    - name: Install Cockpit (UBUNTU/DEBIAN)
+      apt:
+        name: cockpit
+        state: present
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install Cockpit (CENTOS)
+      dnf:
+        name:
+          - cockpit
+          - cockpit-ws
+        state: present
+      when: ansible_distribution == "CentOS"
+
+    - name: Start & Enable the Cockpit Socket
+      ansible.builtin.systemd:
+        name: cockpit.socket
+        state: started
+        enabled: true

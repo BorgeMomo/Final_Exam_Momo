@@ -1,0 +1,30 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+    - name: Install SNMPD (Ubuntu/Debian)
+      apt:
+        name: snmpd
+        state: present
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Install SNMPD (CentOS)
+      dnf:
+        name: net-snmp
+        state: present
+      when: ansible_distribution == "CentOS"
+
+    - name: Start & Enable SNMPD service (Ubuntu)
+      ansible.builtin.systemd:
+        name: snmpd
+        state: started
+        enabled: true
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Start & Enable SNMPD service (CentOS)
+      ansible.builtin.systemd:
+        name: snmpd
+        state: started
+        enabled: true
+      when: ansible_distribution == "CentOS"
